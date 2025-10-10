@@ -3,7 +3,12 @@
 This project is a self-learning journey to build a minimal Shazam-like app from scratch.  
 The focus is on **understanding the algorithms**.
 
----
+## What might be causing the issues
+
+- Need to use a simpler algorithm to encode songs, SHA-1 Hashing is too harsh.
+- Floating-Point Time Precision
+  - (Floating-Point Time Precision: You store times as float64 and subtract them in match_hashes() (int(t_db_frames - t_q_frames)). These subtractions accumulate floating-point errors, causing the same peak pairs to hash to slightly different time deltas. Solution: Convert all times to integer frame indices immediately during fingerprinting and keep them as integers throughout.)
+- Need to modify create_hashes function to form better packaging of peaks (must sort the peaks by their timestamp)
 
 ## 📚 Resources
 
