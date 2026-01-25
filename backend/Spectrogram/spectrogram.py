@@ -24,7 +24,19 @@ class Spectrogram:
         self._n_fft = n_fft
 
     @property
-    def spectro(self):
+    def data_db(self):
         return self._data_db
+    
+    @property
+    def sr(self):
+        return self._sr
+    
+    @property
+    def hop_size(self):
+        return self._hop_size
+    
+    @property
+    def n_fft(self):
+        return self._n_fft
 
     
