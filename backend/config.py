@@ -6,3 +6,8 @@ N_FFT = 2048
 HOP_SIZE = 512
 DB_FILENAME = "./db/fingerprints.pkl"
 DB_SONG_INFO = "./db/song_info.json"
+
+MIN_TIME_DELTA = 0.5
+MAX_TIME_DELTA = 1.2
+
+FAN_OUT = 10 
