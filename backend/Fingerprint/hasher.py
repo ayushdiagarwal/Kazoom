@@ -1,6 +1,6 @@
 
 class Hash:
-    # should f_a, f_b in int or float?
+    # should f_a, f_b in int or float? -> Probably int
 
     @staticmethod
     def encode(f_a:float, f_b:float, delta_t_frames) -> int:

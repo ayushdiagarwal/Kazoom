@@ -29,6 +29,7 @@ class SQLiteFingerprintStore(FingerprintStore):
         self._conn.commit()
 
     def insert(self, fingerprint: Fingerprint) -> None:
+        """Insert a fingerprint into the sqlite3 db"""
 
         cursor = self._conn.cursor()
         cursor.execute(
@@ -38,6 +39,7 @@ class SQLiteFingerprintStore(FingerprintStore):
         self._conn.commit()
 
     def lookup(self, hash_val:int) -> list[Fingerprint]:
+        """lookup a hash_val in the sqlite3 db to return a list of corresponding fingerprints"""
         cursor = self._conn.cursor()
         cursor.execute(
             "SELECT hash, song_id, anchor_time FROM fingerprints WHERE hash = ?",

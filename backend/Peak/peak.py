@@ -1,6 +1,11 @@
 class Peak:
 
     def __init__(self,freq:float, time:float):
+        """
+        Peaks are expressed in physical units.
+        Frequency -> Hz
+        Time -> Seconds
+        """
 
         if time < 0:
             raise ValueError("Time can't be negative")

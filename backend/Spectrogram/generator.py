@@ -13,6 +13,11 @@ class SpectrogramGenerator:
         
 
     def generate(self, audio: AudioSignal) -> Spectrogram:
+        """
+        Computes a dB-scaled spectrogram from an audio signal.
+
+        Applies a short-time fourier transform (STFT) usig the configured FFT size and hop length, converts magnitude to decibels and returns a Spectrogram object.
+        """
         
         stft = librosa.stft(audio.samples, n_fft = self._n_fft, hop_length = self._hop_size)
 

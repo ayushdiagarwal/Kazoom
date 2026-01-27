@@ -14,6 +14,12 @@ class PeakDetector:
         self._min_db = min_db
 
     def detect(self, spectrogram: Spectrogram) -> list[Peak]:
+        """
+        Detects spectral peaks in a dB-scaled spectrogram
+
+        A peak is defined as a local maxima within a square neighborhood and above a minimum amplitude threshold
+        """
+        
         neighborhood_size = (self._neighbor_size, self._neighbor_size)
         data_db = spectrogram.data_db
 
