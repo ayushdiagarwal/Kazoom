@@ -34,3 +34,5 @@ def main(path, mode, song_id=-1):
 			return song.song_id, song.confidence
 	else:
 		raise ValueError("Invalid Mode of operation")
+	
+	return -1, 0

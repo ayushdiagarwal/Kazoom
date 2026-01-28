@@ -1,6 +1,7 @@
 .ipynb_checkpoints/
 songs/
 query/
-./backend/uploads/
+backend/uploads/
+uploads/
 __pycache__/
 .DS_Store
