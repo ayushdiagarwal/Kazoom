@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pydub import AudioSegment
 from main import main
+from Models.song import Song
 from config import BASE_DIR
 import os
 
@@ -29,9 +30,12 @@ def upload():
     audio = AudioSegment.from_file(filepath_webm, codec="opus")
 
     audio.export(filepath_mp3, format="mp3")
-
-    song_name, confidence = main(filepath_mp3, "R")
-    print(song_name)
+    song:Song
+    song, confidence = main(filepath_mp3, "R")
+    song_name = song.title
+    song_artist = song.artist
+    song_album = song.album
+    print(song_name, song_artist, song_album)
     
     return jsonify({"message": "Audio received and converted to MP3", "filename": os.path.basename(filepath_mp3), "song_name": song_name, "confidence": confidence})
                    
