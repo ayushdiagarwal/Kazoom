@@ -31,5 +31,6 @@ def main(path, mode, song_id=-1):
 			print("No match found: Confidence less than 30%")
 		else:
 			print(song.song_id, song.confidence)
+			return song.song_id, song.confidence
 	else:
 		raise ValueError("Invalid Mode of operation")
