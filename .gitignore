@@ -2,6 +2,8 @@
 songs/
 query/
 backend/uploads/
+db/
+songs/
 uploads/
 __pycache__/
 .DS_Store
