@@ -1,3 +1,6 @@
 .ipynb_checkpoints/
-revolver/
+songs/
+query/
 ./backend/uploads/
+__pycache__/
+.DS_Store

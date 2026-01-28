@@ -1,5 +1,5 @@
 import librosa
-from audio import AudioSignal
+from Audio.audio import AudioSignal
 from config import SR
 
 class AudioLoader:

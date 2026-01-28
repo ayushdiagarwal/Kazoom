@@ -2,6 +2,8 @@
 
 Right now your pipeline is:
 
+## Add functions for plotting spectrogram and peaks
+
 ```
 Audio
  → STFT

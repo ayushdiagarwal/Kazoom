@@ -34,7 +34,7 @@ class SQLiteFingerprintStore(FingerprintStore):
         cursor = self._conn.cursor()
         cursor.execute(
             "INSERT INTO fingerprints (hash, song_id, anchor_time) VALUES (?, ?, ?)",
-            (fingerprint.hash, fingerprint.song_id, fingerprint.anchor_time)
+            (fingerprint.hash_val, fingerprint.song_id, fingerprint.anchor_time)
         )
         self._conn.commit()
 
@@ -48,7 +48,7 @@ class SQLiteFingerprintStore(FingerprintStore):
 
         rows = cursor.fetchall()
         return [
-            Fingerprint(hash=row[0], song_id=row[1], anchor_time=row[2])
+            Fingerprint(hash_val=row[0], song_id=row[1], anchor_time=row[2])
             for row in rows
         ]
     

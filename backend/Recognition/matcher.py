@@ -15,14 +15,14 @@ class Matcher:
 
         # create histogram
         for q_fp in query_fingerprints:
-            qhash = q_fp.hash_val()
-            q_t = q_fp.anchor_time()
+            qhash = q_fp.hash_val
+            q_t = q_fp.anchor_time
 
             candidates = store.lookup(qhash)
 
             for db_fp in candidates:
-                db_song_id = db_fp.song_id()
-                t_db = db_fp.anchor_time()
+                db_song_id = db_fp.song_id
+                t_db = db_fp.anchor_time
 
                 offset = int(t_db - q_t)
                 histogram[int(db_song_id), offset] += 1
