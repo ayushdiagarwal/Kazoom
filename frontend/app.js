@@ -1,129 +1,149 @@
-const bars = document.querySelectorAll(".wave span");
-const listen = document.querySelector(".circle-container");
-const subtext = document.querySelector(".subtext");
-const wave = document.querySelector(".wave");
-const micBtn = document.querySelector(".mic svg");
-const stopBtn = document.querySelector(".stop");
-const confidence = document.querySelector(".confidence");
+const dom = {
+  bars: document.querySelectorAll(".wave span"),
+  circle: document.querySelector(".circle-container"),
+  subtext: document.querySelector(".subtext"),
+  wave: document.querySelector(".wave"),
+  micIcon: document.querySelector(".mic svg"),
+  stopBtn: document.querySelector(".stop"),
+  confidence: document.querySelector(".confidence"),
+  albums: document.querySelectorAll(".album"),
+};
 
-let timerId = null;
+const LISTEN_DURATION = 7000;
+let isListening = false;
+let mediaRecorder = null;
 
-for (let i = 0; i < bars.length; i++) {
-  const delay = Math.random() * 0.6;
-  const duration = 0.4 + Math.random() * 0.4;
+dom.bars.forEach((bar) => {
+  bar.style.animationDelay = `${Math.random() * 0.6}s`;
+  bar.style.animationDuration = `${0.4 + Math.random() * 0.4}s`;
+});
 
-  bars[i].style.animationDelay = delay + "s";
-  bars[i].style.animationDuration = duration + "s";
-}
+dom.bars.forEach((bar) => {
+  bar.style.animationDelay = `${Math.random() * 0.6}s`;
+  bar.style.animationDuration = `${0.4 + Math.random() * 0.4}s`;
+});
 
-listen.addEventListener("click", async () => {
-  if (timerId) return;
+dom.circle.addEventListener("click", async () => {
+  if (isListening) return;
+  isListening = true;
 
-  let timeLeft = 7;
-  subtext.innerHTML = `Listening ... ${timeLeft}s`;
-  wave.classList.add("listening");
-  micBtn.style.visibility = "hidden";
-  stopBtn.style.visibility = "visible";
+  resetPreviousResult();
 
-  timerId = setInterval(() => {
-    timeLeft--;
-    subtext.innerHTML = `Listening ... ${timeLeft}s`;
-
-    if (timeLeft <= 0) {
-      clearInterval(timerId);
-      timerId = null;
-
-      subtext.innerHTML = "Analyzing ...";
-      wave.classList.remove("listening");
-      micBtn.style.visibility = "visible";
-      stopBtn.style.visibility = "hidden";
-    }
-  }, 1000);
+  startCountdown(7, setAnalyzingUI);
 
   try {
-    // request mic
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const audioBlob = await recordAudio(LISTEN_DURATION);
+    const result = await uploadAudio(audioBlob);
 
-    const mediaRecorder = new MediaRecorder(stream);
-    const audioChunks = [];
-
-    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-
-    mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, {
-        type: "audio/webm",
-      });
-
-      const url = URL.createObjectURL(audioBlob);
-
-      // send the recorded audio to flask backend
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.webm");
-
-      try {
-        const response = await fetch("http://localhost:5000/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const text = await response.text();
-          console.error("Server returned error: ", response.status, text);
-          return;
-        }
-
-        const result = await response.json();
-        console.log("Server response: ", result);
-        console.log(
-          `Song name: ${result.song_name}, Artist: ${result.song_artist}, Album: ${result.song_album}`,
-        );
-
-        const albums = document.querySelectorAll(".album");
-
-        console.log(albums);
-
-        albums.forEach((album) => {
-          const nameDiv = album.querySelector(".name");
-          const tickDiv = album.querySelector(".tick");
-          const album_img = album.querySelector("img");
-
-          console.log(nameDiv);
-
-          if (
-            nameDiv &&
-            tickDiv &&
-            nameDiv.textContent.trim() === result.song_album
-          ) {
-            album_img.classList.add("selected-album");
-            tickDiv.style.visibility = "visible";
-            tickDiv.classList.add("selected");
-          }
-        });
-        updateSongResponse(result.song_name, result.song_artist);
-        updateConfidence(result.confidence);
-      } catch (err) {
-        console.error("Error sending audio: ", err);
-      }
-    };
-
-    mediaRecorder.start();
-
-    setTimeout(() => {
-      mediaRecorder.stop();
-      console.log("Recording stopped.");
-    }, 7000);
+    highlightAlbum(result.song_album);
+    setResultUI(result.song_name, result.song_artist);
+    updateConfidence(result.confidence);
   } catch (err) {
-    console.error("Microphone access denied: ", err);
+    console.error(err);
+  } finally {
+    isListening = false;
   }
 });
 
-// update both of these
-function updateSongResponse(song, artist) {
-  subtext.innerHTML = `${song} by ${artist}`;
-  subtext.classList.add("song-result");
+async function recordAudio(durationMs) {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const recorder = new MediaRecorder(stream);
+  const chunks = [];
+
+  recorder.ondataavailable = (e) => chunks.push(e.data);
+
+  recorder.start();
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      recorder.stop();
+      recorder.onstop = () => {
+        resolve(new Blob(chunks, { type: "audio/webm" }));
+      };
+    }, durationMs);
+  });
 }
 
-function updateConfidence(newVal) {
-  confidence.textContent = "Confidence: " + newVal.toFixed(2);
-  confidence.style.visibility = "visible";
+async function uploadAudio(blob) {
+  const formData = new FormData();
+  formData.append("audio", blob, "recording.webm");
+
+  const res = await fetch("http://localhost:8000/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+function startCountdown(seconds, onDone) {
+  let remaining = seconds;
+  setListeningUI(remaining);
+
+  const id = setInterval(() => {
+    remaining--;
+    setListeningUI(remaining);
+
+    if (remaining <= 0) {
+      clearInterval(id);
+      onDone();
+    }
+  }, 1000);
+}
+
+function highlightAlbum(albumName) {
+  dom.albums.forEach((album) => {
+    const name = album.querySelector(".name")?.textContent.trim();
+    if (name === albumName) {
+      album.querySelector("img")?.classList.add("selected-album");
+      const tick = album.querySelector(".tick");
+      tick.style.visibility = "visible";
+      tick.classList.add("selected");
+    }
+  });
+}
+
+function setListeningUI(secondsLeft) {
+  dom.subtext.textContent = `Listening ... ${secondsLeft}s`;
+  dom.wave.classList.add("listening");
+  dom.micIcon.style.visibility = "hidden";
+  dom.stopBtn.style.visibility = "visible";
+}
+
+function setAnalyzingUI() {
+  dom.subtext.textContent = "Analyzing ...";
+  dom.wave.classList.remove("listening");
+  dom.micIcon.style.visibility = "visible";
+  dom.stopBtn.style.visibility = "hidden";
+}
+
+function setResultUI(song, artist) {
+  dom.subtext.textContent = `${song} by ${artist}`;
+  dom.subtext.classList.add("song-result");
+}
+
+function updateConfidence(val) {
+  dom.confidence.textContent = `Confidence: ${val.toFixed(2)}`;
+  dom.confidence.style.visibility = "visible";
+}
+
+function resetPreviousResult() {
+  dom.albums.forEach((album) => {
+    album.querySelector("img")?.classList.remove("selected-album");
+
+    const tick = album.querySelector(".tick");
+    if (tick) {
+      tick.classList.remove("selected");
+      tick.style.visibility = "hidden";
+    }
+  });
+
+  dom.confidence.textContent = "";
+  dom.confidence.style.visibility = "hidden";
+
+  dom.subtext.classList.remove("song-result");
 }

@@ -37,19 +37,13 @@ html {
   z-index: 1000;
 }
 
-.mic:hover {
-  /* background-color: #f3e3e1; */
-}
-
 .mic svg {
   background-color: #f4e8e7;
-  /* background-color: red; */
   align-items: center;
   width: 50px;
   height: 50px;
   color: rgb(184, 188, 188);
   color: #cc272e;
-  /* visibility: hidden; */
   position: absolute;
 }
 
@@ -116,19 +110,22 @@ html {
 .wave span {
   width: 3px;
   height: 3px;
-  /* background: #333; */
   background: #cc272e;
-  animation: wave 0.6s ease-in-out infinite;
+
+  transform: scaleY(0.3);
   transform-origin: center;
+
+  animation-name: none;
+  animation-play-state: paused;
 }
 
-.listening span {
-  width: 3px;
+.wave.listening span {
   height: 100%;
-  /* background: #333; */
-  background: #cc272e;
-  animation: wave 0.6s ease-in-out infinite;
-  transform-origin: center;
+  animation-name: wave;
+  animation-duration: 0.6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
 }
 
 @keyframes wave {
@@ -168,7 +165,6 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background-color: rgb(143, 143, 204); */
 }
 
 .album {
@@ -179,10 +175,6 @@ html {
   flex-direction: column;
   justify-content: center;
   position: relative;
-
-  /* background-color: blue; */
-  /* border: 5px solid black; */
-  z-index: 5;
 }
 
 .name {
