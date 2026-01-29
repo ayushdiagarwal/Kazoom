@@ -3,14 +3,18 @@
 This project is a self-learning journey to build a minimal Shazam-like app from scratch.  
 The focus is on **understanding the algorithms**.
 
+## How to run this
+
+- Run the frontend on localhost port 3000, using the command `python3 -m http.server 3000`
+- Run the backend on port 5000 by `python3 app.py`
+
 ## What might be causing the issues
 
 - Need to use a simpler algorithm to encode songs, SHA-1 Hashing is too harsh.
 - Floating-Point Time Precision
   - (Floating-Point Time Precision: You store times as float64 and subtract them in match_hashes() (int(t_db_frames - t_q_frames)). These subtractions accumulate floating-point errors, causing the same peak pairs to hash to slightly different time deltas. Solution: Convert all times to integer frame indices immediately during fingerprinting and keep them as integers throughout.)
 - Need to modify create_hashes function to form better packaging of peaks (must sort the peaks by their timestamp)
-- Time alignment
-  -
+- ## Time alignment
 
 ## 📚 Resources
 

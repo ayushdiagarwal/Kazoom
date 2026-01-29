@@ -1,13 +1,12 @@
 import sqlite3
 from pathlib import Path
-from config import DB_SONG_META
+from config import DB_SONG_META, DB_SQL
 
 # Creating database for the song metadata
-
-SQL_FILE = "export.sql"     
+  
 DB_FILE = DB_SONG_META   
 
-sql_script = Path(SQL_FILE).read_text(encoding="utf-8")
+sql_script = Path(DB_SQL).read_text(encoding="utf-8")
 
 conn = sqlite3.connect(DB_FILE)
 

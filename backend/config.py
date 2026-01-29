@@ -11,6 +11,7 @@ DB_DIR = f"{BASE_DIR}/db"
 DB_FILENAME = f"{DB_DIR}/fingerprints.pkl"
 DB_SONG_META = f"{DB_DIR}/songs_metadata.db"
 DB_PATH = f"{DB_DIR}/fingerprints.db"
+DB_SQL = f"{DB_DIR}/export.sql"
 
 MIN_TIME_DELTA = 0.5
 MAX_TIME_DELTA = 1.2

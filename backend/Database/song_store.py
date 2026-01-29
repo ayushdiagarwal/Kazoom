@@ -6,7 +6,11 @@ class SongStore:
     """
     Given a song_id, this will return the Song object
     """
-    def get(self, song_id: int) -> Song: 
+    def get(self, song_id: int) -> Song:
+
+        if song_id == -1:
+            return Song(-1, "NOT FOUND", "UNKNOWN", "UNKNOWN")
+
         if song_id < 0:
             raise ValueError("song_id can't be negative")
         

@@ -8,7 +8,9 @@ import os
 
 app = Flask(__name__)
 # CORS(app)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, origins=["http://localhost:3000"])
+
 
 UPLOAD_FOLDER = f"{BASE_DIR}/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -32,12 +34,13 @@ def upload():
     audio.export(filepath_mp3, format="mp3")
     song:Song
     song, confidence = main(filepath_mp3, "R")
+    print(song)
     song_name = song.title
     song_artist = song.artist
     song_album = song.album
     print(song_name, song_artist, song_album)
     
-    return jsonify({"message": "Audio received and converted to MP3", "filename": os.path.basename(filepath_mp3), "song_name": song_name, "confidence": confidence})
+    return jsonify({"message": "Audio received and converted to MP3", "filename": os.path.basename(filepath_mp3), "song_name": song_name, "song_artist": song_artist, "song_album": song_album,"confidence": confidence})
                    
 if __name__ == "__main__":
     app.run(debug=True)
