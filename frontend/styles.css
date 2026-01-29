@@ -1,63 +1,234 @@
 * {
-  background-color: rgb(249, 234, 216);
-  padding: 0;
   margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  background-color: oklch(0.96 0.01 20);
 }
 
-.title {
-  font-size: 3.5rem;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  font-weight: 600;
-  color: rgb(180, 100, 40);
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  padding: 1.5rem;
+body,
+html {
+  height: 100%;
 }
 
-.square {
-  margin: 1rem auto;
-  height: 7rem;
-  width: 7rem;
-  border-radius: 25%;
-  background-color: rgb(219, 139, 64);
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  font-family: "Geist", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
-.sub {
-  text-align: center;
-  font-weight: 200;
-  font-size: larger;
-}
+.mic {
+  margin-top: 10rem;
+  background-color: #f4e8e7;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
 
-.res {
-  padding: 1rem;
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-.stats {
-  text-align: center;
-}
-
-.albums {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 1rem;
-  padding-right: 3cqi;
+  transition: background-color 0.3s ease;
+  z-index: 1000;
 }
 
-.albums img {
-  max-width: 250px;
-  height: auto;
-  border-radius: 10%;
+.mic:hover {
+  /* background-color: #f3e3e1; */
 }
 
-.albumText {
-  text-align: center;
-  font-size: 1em;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 1rem;
+.mic svg {
+  background-color: #f4e8e7;
+  /* background-color: red; */
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  color: rgb(184, 188, 188);
+  color: #cc272e;
+  /* visibility: hidden; */
+  position: absolute;
+}
+
+.stop {
+  position: absolute;
+  visibility: hidden;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 60px;
+  line-height: 1;
+
+  background-color: transparent;
+  color: #cc272e;
+  cursor: pointer;
+}
+
+.stop i {
+  background-color: #f4e8e7;
+}
+
+.heading {
+  font-size: 2rem;
+  color: blue;
+}
+
+.subtext {
+  text-transform: uppercase;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 300;
+}
+
+.song-result {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #cc272e;
+  text-transform: none;
+}
+
+.confidence {
+  position: absolute;
+  visibility: hidden;
+  font-size: 0.7rem;
+  font-weight: 300;
+  margin-top: 3px;
+}
+
+.wave-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.wave {
+  display: flex;
+  gap: 4px;
+  height: 30px;
+  align-items: center;
+}
+
+.wave span {
+  width: 3px;
+  height: 3px;
+  /* background: #333; */
+  background: #cc272e;
+  animation: wave 0.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.listening span {
+  width: 3px;
+  height: 100%;
+  /* background: #333; */
+  background: #cc272e;
+  animation: wave 0.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes wave {
+  0% {
+    transform: scaleY(0.3);
+  }
+  25% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.5);
+  }
+  75% {
+    transform: scaleY(0.8);
+  }
+  100% {
+    transform: scaleY(0.3);
+  }
+}
+
+.text {
+  font-size: 0.8rem;
+  font-weight: 300;
+  text-transform: capitalize;
+  letter-spacing: 2px;
+}
+
+.album-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  align-items: center;
+}
+
+.albums {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: rgb(143, 143, 204); */
+}
+
+.album {
+  margin: 1rem;
+  border-radius: 1rem;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+
+  /* background-color: blue; */
+  /* border: 5px solid black; */
+  z-index: 5;
+}
+
+.name {
+  margin-top: 0.75em;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.artist {
+  font-weight: 200;
+  font-size: 0.7rem;
+}
+
+.album img {
+  display: block;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1rem;
+  padding: 2px;
+}
+
+.selected-album {
+  border: 3px solid #cc272e;
+}
+
+.tick {
+  position: absolute;
+  visibility: hidden;
+}
+
+.selected {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #cc272e;
+
+  top: 5rem;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selected i {
+  font-size: 13px;
+  color: white;
+  background-color: #cc272e;
 }
