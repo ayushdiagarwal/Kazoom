@@ -43,4 +43,4 @@ def upload():
     return jsonify({"message": "Audio received and converted to MP3", "filename": os.path.basename(filepath_mp3), "song_name": song_name, "song_artist": song_artist, "song_album": song_album,"confidence": confidence})
                    
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=8000, debug=False, use_reloader=False)
