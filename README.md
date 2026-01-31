@@ -1,123 +1,171 @@
-# 🎵 Shazam Clone — Learning & Implementation Roadmap
+# Kazoom
 
-This project is a self-learning journey to build a minimal Shazam-like app from scratch.  
-The focus is on **understanding the algorithms**.
+A from-scratch implementation of an audio fingerprinting and music recognition system, inspired by how apps like Shazam identify songs from short audio clips.
 
-## How to run this
+This project focuses on:
 
-- Run the frontend on localhost port 3000, using the command `python3 -m http.server 3000`
-- Run the backend on port 5000 by `python3 app.py`
+    •	understanding how audio fingerprints are constructed
+    •	designing a robust matching algorithm
+    •	and building a clean, modular backend architecture around it
 
-## What might be causing the issues
+### Features
 
-- Need to use a simpler algorithm to encode songs, SHA-1 Hashing is too harsh.
-- Floating-Point Time Precision
-  - (Floating-Point Time Precision: You store times as float64 and subtract them in match_hashes() (int(t_db_frames - t_q_frames)). These subtractions accumulate floating-point errors, causing the same peak pairs to hash to slightly different time deltas. Solution: Convert all times to integer frame indices immediately during fingerprinting and keep them as integers throughout.)
-- Need to modify create_hashes function to form better packaging of peaks (must sort the peaks by their timestamp)
-- ## Time alignment
+    •	Audio fingerprinting using spectral peak pairing
+    •	Robust matching via time-offset alignment
+    •	SQLite-backed fingerprint database
+    •	Separate metadata database for songs
+    •	Clean, layered architecture (Audio → Spectrogram → Peaks → Fingerprints → Matching)
+    •	Simple frontend + API integration
+    •	Designed for single-instance deployment (no distributed assumptions)
 
-## 📚 Resources
+## How It Works (High Level)
 
-- **Audio Processing Basics**: [Think DSP (free book)](https://greenteapress.com/wp/think-dsp/)
-- **NumPy FFT Docs**: [numpy.fft](https://numpy.org/doc/stable/reference/routines.fft.html)
-- **Librosa Docs**: [https://librosa.org/doc/latest/index.html](https://librosa.org/doc/latest/index.html)
-- **Shazam Paper**: ["An Industrial-Strength Audio Search Algorithm" (Wang, 2003)](http://www.ee.columbia.edu/~dpwe/papers/Wang03-shazam.pdf)
+### Overall Pipeline
 
----
+![High-level pipeline](assets/1.png)
 
-## 🚀 Roadmap / Checklist
+1. **Indexing phase**
+   - Songs are converted into compact fingerprints
+   - Fingerprints are stored in a database
 
-### Phase 1: Foundations (Audio + FFT)
+2. **Recognition phase**
+   - A short query audio clip is fingerprinted
+   - Fingerprints are matched against the database
+   - The song with the strongest time-consistent alignment wins
 
-- [ ] Load a `.wav` file and plot its waveform
-- [ ] Implement FFT on a short clip (0.5s)
-- [ ] Plot frequency spectrum from FFT
-- [ ] Test with a sine wave → FFT peak at correct frequency
+No raw audio is ever compared — only hashes derived from spectral features.
 
-📌 **Checkpoint 1:** Can I show a 440Hz sine wave has a peak near 440Hz?
+### Indexing vs Recognition
 
----
+![Indexing vs Recognition](assets/2.png)
 
-### Phase 2: Time–Frequency Analysis (STFT / Spectrogram)
+The same fingerprinting pipeline is reused in two modes:
 
-- [ ] Implement my own STFT (frames → FFT → stack)
-- [ ] Plot spectrogram manually with `imshow`
-- [ ] Compare with `librosa.stft` result
+- **Indexing mode** stores fingerprints along with a `song_id`
+- **Recognition mode** matches query fingerprints using time-offset alignment
 
-📌 **Checkpoint 2:** Can I explain the difference between FFT and STFT and generate both?
+This avoids duplicated logic and keeps the system consistent.
 
----
+### Getting Started
 
-### Phase 3: Peak Picking
+Prerequisites
 
-- [ ] Implement local maximum search in 2D spectrogram
-- [ ] Add amplitude threshold to ignore weak peaks
-- [ ] Plot constellation map (spectrogram + peaks)
+    •	Python 3.10+
+    •	ffmpeg installed (required by librosa)
+    •	SQLite3
 
-📌 **Checkpoint 3:** Can I show only strong peaks in a noisy spectrogram?
+### Installation
 
----
+```
+git clone https://github.com/ayushdiagarwal/Kazoom.git
+cd Kazoom
+pip install -r requirements.txt
+python3 backend/app.py # run the backend
 
-### Phase 4: Fingerprinting
+# in another terminal tab
+cd frontend
+python3 -m http.server 3000 # run the frontend on port 3000
+```
 
-- [ ] For each peak, select nearby peaks → form pairs
-- [ ] Create hash: `(f1, f2, Δt)`
-- [ ] Store hashes with their time indices
+### Configuration
 
-📌 **Checkpoint 4:** Can I generate fingerprints for a 10-second clip?
+Edit config.py to set:
 
----
+    •	sample rate
+    •	FFT parameters
+    •	fingerprinting thresholds
+    •	database paths
 
-### Phase 5: Database + Matching
+All important constants live in one place.
 
-- [ ] Build a small DB (dict or SQLite) to store fingerprints
-- [ ] Add fingerprints for multiple songs
-- [ ] Query with a test clip → match by overlapping hashes
+#### Index Songs
 
-📌 **Checkpoint 5:** Can I correctly identify a song from 3 candidates?
+python main.py --mode index --path path/to/song.mp3 --song-id 1
 
----
+This:
+• loads the audio
+• generates fingerprints
+• stores them in the fingerprint database
 
-### Phase 6: Web App
+Song metadata should already exist in the metadata database.
 
-- [ ] Build backend (Flask/FastAPI)
-  - `/add_song` → process & store fingerprints
-  - `/recognize` → upload clip & return match
-- [ ] Add minimal frontend for recording/uploading audio
+#### Recognize a Song
 
-📌 **Checkpoint 6:** Can I record audio in browser and get a song match from my DB?
+python main.py --mode recognize --path path/to/query_clip.wav
 
----
+Returns:
 
-## 🎯 Final Goal
+    •	matched song ID
+    •	confidence score
+    •	associated metadata (title, artist, album)
 
-By the end, I’ll have a working Shazam-like demo that:
+### Core Algorithm (Detailed)
 
-1. Learns fingerprints from audio files
-2. Matches noisy clips against them
-3. Runs end-to-end via a small web app
+![Conversion from Audio -> Hashes](assets/3.png)
 
-## Resources
+1. Audio → Spectrogram
+   • Audio is converted to mono at a fixed sample rate
+   • Short-Time Fourier Transform (STFT) is applied
+   • Magnitudes are converted to logarithmic scale (dB)
 
-### Peak finding
+2. Spectrogram → Peaks
+   • Local maxima are detected using a neighborhood filter
+   • Only strong peaks above a threshold are kept
+   • Each peak is represented as (frequency, time)
 
-- https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.html
+These peaks are stable under noise, compression, and distortions.
 
-Peaks in a spectrogram (local maxima) tend to be stable, even if there’s noise, MP3 compression, or background chatter.
+3. Peaks → Fingerprints
+   • Peaks are paired within a time window
+   • Each pair generates a fingerprint:
 
-A point (n0, k0) is a peak if its magnitude is greater than all neighbors within a rectangular neighborhood
+(f_anchor, f_target, Δt)
 
-∣X(n0​,k0​)∣≥∣X(n,k)∣∀(n,k)∈[n0​−τ:n0​+τ]×[k0​−κ:k0​+κ]
-τ = how far you look in the time direction
-κ = how far you look in the frequency direction
+    •	This tuple is encoded into a single integer hash
+    •	Each fingerprint stores:
+    •	hash
+    •	anchor time
+    •	song ID (during indexing)
 
-Bigger τ/κ = sparser constellation map (fewer peaks, only strong isolated ones)
-After selecting peaks, you throw away magnitudes and keep only coordinates (time, frequency).
-This looks like “stars in the night sky” → hence the name constellation map.
+4. Matching
+   • Matching is done using time offset histograms
+   • Correct matches show strong alignment at a consistent offset
+   • The song with the strongest peak wins
+   • Confidence is computed relative to the runner-up
 
-for i in range(rows):
-for j in range(cols):
-val = spec_db[i, j]
-window = spec_db[i-τ:i+τ+1, j-κ:j+κ+1]
-if val == np.max(window):
-mark as peak
+#### Design Philosophy
+
+Some deliberate design decisions:
+
+    •	No global state
+    •	Dependency injection over static calls
+    •	Domain objects are storage-agnostic
+    •	SQLite used intentionally (simple, inspectable, sufficient)
+    •	One-way dependencies (lower layers don’t depend on higher ones)
+
+The system is intentionally layered:
+
+    •	low-level signal processing is isolated
+    •	domain objects do not depend on storage
+    •	services orchestrate workflows without owning logic
+
+#### References & Inspiration
+
+    •	Shazam’s original audio fingerprinting paper
+    •	Spectral peak pairing techniques
+    •	Time-offset histogram matching methods
+
+### License
+
+This project is licensed under the MIT License.
+You’re free to use, modify, and learn from it.
+
+### Final Notes
+
+This project was built as a learning exercise, not a product clone.
+
+The focus was on:
+
+    •	understanding the algorithm deeply
+    •	writing clean, maintainable code
+    •	and making architectural decisions explicit
